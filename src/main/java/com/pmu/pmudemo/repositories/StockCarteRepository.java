@@ -8,4 +8,7 @@ import java.util.List;
 public interface StockCarteRepository extends JpaRepository<StockCarte, Long> {
     // méthodes personnalisées si besoin
     List<StockCarte> findByPaysIgnoreCase(String pays);
+     
+
+
 } 

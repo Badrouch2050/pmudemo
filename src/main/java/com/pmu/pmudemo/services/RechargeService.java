@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.pmu.pmudemo.services.CommissionConfigService;
 import com.pmu.pmudemo.domains.CommissionConfig;
+import com.pmu.pmudemo.domains.TauxDeChange ;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,7 +58,7 @@ public class RechargeService {
             typeCommission = config.getTypeCommission();
             commissionValue = config.getValeur();
         } else {
-            commissionValue = this.commissionValue;
+            commissionValue = 3;
         }
         if ("POURCENTAGE".equalsIgnoreCase(typeCommission)) {
             commission = montantAPayer * (commissionValue / 100.0);
@@ -96,6 +97,7 @@ public class RechargeService {
         }
         return saved;
     }
+    public UserRepository getUserRepo() { return this.userRepo; }
 
     public List<RechargeTransaction> getRechargesByUser(Long userId) {
         return rechargeRepo.findAll().stream().filter(r -> r.getUser().getId().equals(userId)).toList();

@@ -3,6 +3,8 @@ package com.pmu.pmudemo.repositories;
 import com.pmu.pmudemo.domains.RechargeTransaction;
 import com.pmu.pmudemo.services.dto.MonthRevenueDTO;
 import com.pmu.pmudemo.services.dto.OperatorRevenueDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,8 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface RechargeTransactionRepository extends JpaRepository<RechargeTransaction, Long> {
-    @Query("SELECT COALESCE(SUM(r.montant),0) FROM RechargeTransaction r WHERE r.statut = :statut")
-    BigDecimal sumAmountByStatut(@Param("statut") String statut);
+    @Query("SELECT SUM(r.montant) FROM RechargeTransaction r WHERE r.statut = :statut")
+    BigDecimal sumAmountByStatus(@Param("statut") String statut);
 
     @Query("SELECT new com.pmu.pmudemo.services.dto.MonthRevenueDTO(YEAR(r.dateTraitement), MONTH(r.dateTraitement), COALESCE(SUM(r.montant),0)) FROM RechargeTransaction r WHERE r.statut = :statut GROUP BY YEAR(r.dateTraitement), MONTH(r.dateTraitement) ORDER BY YEAR(r.dateTraitement), MONTH(r.dateTraitement)")
     List<MonthRevenueDTO> sumAmountByMonth(@Param("statut") String statut);
@@ -26,5 +28,7 @@ public interface RechargeTransactionRepository extends JpaRepository<RechargeTra
     @Query("SELECT new com.pmu.pmudemo.services.dto.OperatorRevenueDTO(r.operateur, COALESCE(SUM(r.montant),0)) FROM RechargeTransaction r WHERE r.statut = :statut AND r.dateTraitement >= :start AND r.dateTraitement < :end GROUP BY r.operateur")
     List<OperatorRevenueDTO> sumAmountByOperatorFiltered(@Param("statut") String statut, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    long countByStatut(String statut);
+    Long countByStatus(String statut);
+    
+    Page<RechargeTransaction> findByStatut(String statut, Pageable pageable);
 } 

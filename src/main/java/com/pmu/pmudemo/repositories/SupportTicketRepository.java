@@ -8,4 +8,5 @@ import java.util.List;
 public interface SupportTicketRepository extends JpaRepository<SupportTicket, Long> {
     List<SupportTicket> findByUser(User user);
     List<SupportTicket> findByStatut(String statut);
+    List<SupportTicket> findByUserId(Long userId);
 } 

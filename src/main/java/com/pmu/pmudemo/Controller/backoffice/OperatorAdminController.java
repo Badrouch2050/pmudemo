@@ -87,16 +87,17 @@ public class OperatorAdminController {
             })
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
+     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return operatorRepository.findById(id)
-            .map(existing -> {
-                existing.setActif(false);
-                operatorRepository.save(existing);
-                logger.info("Opérateur désactivé (soft delete) : {}", existing.getNom());
-                return ResponseEntity.noContent().build();
-            })
-            .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<Operator> operator = operatorRepository.findById(id);
+        if (operator.isPresent()) {
+            Operator existing = operator.get();
+            existing.setActif(false);
+            operatorRepository.save(existing);
+            logger.info("Opérateur désactivé (soft delete) : {}", existing.getNom());
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 } 

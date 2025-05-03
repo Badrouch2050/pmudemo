@@ -49,7 +49,7 @@ public class StockCarteController {
                 existing.setCode(carte.getCode());
                 existing.setStatut(carte.getStatut());
                 existing.setPays(carte.getPays());
-                return ResponseEntity.ok(stockCarteService.save(existing));
+                return ResponseEntity.ok(stockCarteService.addStock(existing));
             })
             .orElseGet(() -> ResponseEntity.notFound().build());
     }

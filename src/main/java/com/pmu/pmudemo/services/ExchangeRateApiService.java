@@ -8,6 +8,7 @@ import java.util.Map;
 
 @Service
 public class ExchangeRateApiService {
+    
     @Value("${exchangerate.api.url}")
     private String apiUrl;
 

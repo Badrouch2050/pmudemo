@@ -21,7 +21,7 @@ public class TransactionAdminService {
         this.featureFlagService = featureFlagService;
         this.stockCarteService = stockCarteService;
     }
-
+    
     public List<RechargeTransaction> getPendingTransactions() {
         return rechargeRepo.findAll().stream()
                 .filter(t -> t.getStatut().equals("EN_ATTENTE"))
@@ -55,10 +55,8 @@ public class TransactionAdminService {
         });
     }
 
-    public Page<RechargeTransaction> getPendingTransactions(Pageable pageable) {
-        return rechargeRepo.findAll(pageable).map(t -> t).map(t -> {
-            if (t.getStatut().equals("EN_ATTENTE")) return t; else return null;
-        }).filter(t -> t != null);
+     public Page<RechargeTransaction> getPendingTransactions(Pageable pageable) {
+        return rechargeRepo.findByStatut("EN_ATTENTE", pageable);
     }
 
     public void notifyFailure(RechargeTransaction t) {

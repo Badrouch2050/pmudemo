@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class AuthService {
@@ -36,11 +38,13 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setMotDePasse(passwordEncoder.encode(request.getMotDePasse()));
         user.setMethodeAuthentification("EMAIL");
-        user.setRoles("USER");
+        Set<String> roles = new HashSet<>();
+        roles.add("USER");
+        user.setRoles(roles);
         user.setDateInscription(LocalDateTime.now());
         user.setStatut("ACTIF");
         userRepository.save(user);
-        String token = jwtService.generateToken(user.getEmail(), user.getRoles());
+        String token = jwtService.generateToken(user.getEmail(), String.join(",", user.getRoles()));
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setEmail(user.getEmail());
@@ -53,7 +57,7 @@ public class AuthService {
         );
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        String token = jwtService.generateToken(user.getEmail(), user.getRoles());
+        String token = jwtService.generateToken(user.getEmail(), String.join(",", user.getRoles()));
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setEmail(user.getEmail());
@@ -67,12 +71,14 @@ public class AuthService {
             user.setNom(nom);
             user.setEmail(email);
             user.setMethodeAuthentification("GOOGLE");
-            user.setRoles("USER");
+            Set<String> roles = new HashSet<>();
+            roles.add("USER");
+            user.setRoles(roles);
             user.setDateInscription(LocalDateTime.now());
             user.setStatut("ACTIF");
             userRepository.save(user);
         }
-        String token = jwtService.generateToken(user.getEmail(), user.getRoles());
+        String token = jwtService.generateToken(user.getEmail(), String.join(",", user.getRoles()));
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setEmail(user.getEmail());
