@@ -26,13 +26,16 @@ import java.util.Locale;
 @Service
 public class NotificationService {
     private final NotificationRepository notificationRepo;
-    private final JavaMailSender mailSender;
+
+ 
+
     private final RestTemplate restTemplate = new RestTemplate();
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
     private final MessageSource messageSource;
 
     @Value("${notification.sendinblue.api-key}")
     private String sendinblueApiKey;
+    
     @Value("${notification.sendinblue.sender}")
     private String sendinblueSender;
 
@@ -43,9 +46,8 @@ public class NotificationService {
     @Value("${notification.twilio.from}")
     private String twilioFrom;
 
-    public NotificationService(NotificationRepository notificationRepo, JavaMailSender mailSender, MessageSource messageSource) {
+    public NotificationService(NotificationRepository notificationRepo,  MessageSource messageSource) {
         this.notificationRepo = notificationRepo;
-        this.mailSender = mailSender;
         this.messageSource = messageSource;
     }
 
@@ -61,19 +63,7 @@ public class NotificationService {
         System.out.println("Notification envoyée : " + message);
     }
 
-    public void sendEmail(String to, String subject, String content) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(content, true);
-            mailSender.send(message);
-            System.out.println("Email envoyé à " + to);
-        } catch (MessagingException e) {
-            System.err.println("Erreur d'envoi d'email : " + e.getMessage());
-        }
-    }
+ 
 
     // Envoi d'email via Sendinblue
     public void sendEmailSendinblue(String to, String subject, String content) {

@@ -28,7 +28,7 @@ public interface RechargeTransactionRepository extends JpaRepository<RechargeTra
     @Query("SELECT new com.pmu.pmudemo.services.dto.OperatorRevenueDTO(r.operateur, COALESCE(SUM(r.montant),0)) FROM RechargeTransaction r WHERE r.statut = :statut AND r.dateTraitement >= :start AND r.dateTraitement < :end GROUP BY r.operateur")
     List<OperatorRevenueDTO> sumAmountByOperatorFiltered(@Param("statut") String statut, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    Long countByStatus(String statut);
+    Long countByStatut(String statut);
     
     Page<RechargeTransaction> findByStatut(String statut, Pageable pageable);
 } 

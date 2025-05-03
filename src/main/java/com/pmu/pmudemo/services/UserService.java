@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +40,8 @@ public class UserService {
 
     public void changeUserRole(Long id, String role) {
         userRepository.findById(id).ifPresent(user -> {
-            user.setRoles(role);
+            user.setRoles(new HashSet
+            <>(Arrays.asList(role)));
             userRepository.save(user);
         });
     }

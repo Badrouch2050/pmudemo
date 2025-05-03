@@ -9,8 +9,8 @@ import java.util.Map;
 @Service
 public class ExchangeRateApiService {
     
-    @Value("${exchangerate.api.url}")
-    private String apiUrl;
+ //   @Value("${exchangerate.api.url}")
+    private String apiUrl = "https://api.exchangerate-api.com/v4/latest/";
 
     private final RestTemplate restTemplate = new RestTemplate();
 

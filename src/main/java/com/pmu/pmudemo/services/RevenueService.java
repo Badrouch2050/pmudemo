@@ -30,7 +30,7 @@ public class RevenueService {
     }
 
     public long getTransactionCount() {
-        return transactionRepository.countByStatus(SUCCESS_STATUS);
+        return transactionRepository.countByStatut(SUCCESS_STATUS);
     }
 
     public BigDecimal getAverageBasket() {
