@@ -1,5 +1,6 @@
 package com.pmu.pmudemo.config;
 
+import com.pmu.pmudemo.domains.Role;
 import com.pmu.pmudemo.services.JwtService;
 import com.pmu.pmudemo.services.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
@@ -41,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             if (jwtService.validateToken(token, userDetails)) {
+                Role role = jwtService.extractRole(token);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

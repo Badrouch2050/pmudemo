@@ -1,9 +1,12 @@
 package com.pmu.pmudemo.domains;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "operator")
+@NoArgsConstructor
 public class Operator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

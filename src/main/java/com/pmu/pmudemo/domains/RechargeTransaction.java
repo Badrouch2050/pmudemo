@@ -10,6 +10,7 @@ public class RechargeTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_recharge_transaction_user"))
     private User user;
     private String operateur;
     private String numeroCible;
@@ -22,6 +23,7 @@ public class RechargeTransaction {
     @ManyToOne
     private StockCarte codeRecharge; // nullable
     @ManyToOne
+    @JoinColumn(name = "agent_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_recharge_transaction_agent"))
     private User agent; // nullable
     private Double montantCarte; // valeur de la carte, ex : 5
     private String deviseCarte; // ex : TND
@@ -31,6 +33,15 @@ public class RechargeTransaction {
     private Double commission; // montant de la commission prélevée
     private String typeCommission; // POURCENTAGE ou FIXE
     private Double commissionBase; // valeur de base (pourcentage ou montant)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_traitement", nullable = false)
+    private TypeTraitement typeTraitement;
+
+    public enum TypeTraitement {
+        AUTOMATIQUE,  // Traité par le système
+        MANUELLE      // Traité par un agent
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -72,4 +83,10 @@ public class RechargeTransaction {
     public void setTypeCommission(String typeCommission) { this.typeCommission = typeCommission; }
     public Double getCommissionBase() { return commissionBase; }
     public void setCommissionBase(Double commissionBase) { this.commissionBase = commissionBase; }
+    public TypeTraitement getTypeTraitement() {
+        return typeTraitement;
+    }
+    public void setTypeTraitement(TypeTraitement typeTraitement) {
+        this.typeTraitement = typeTraitement;
+    }
 } 

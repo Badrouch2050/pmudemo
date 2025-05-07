@@ -1,18 +1,23 @@
 package com.pmu.pmudemo.repositories;
 
 import com.pmu.pmudemo.domains.RechargeTransaction;
+import com.pmu.pmudemo.domains.User;
 import com.pmu.pmudemo.services.dto.MonthRevenueDTO;
 import com.pmu.pmudemo.services.dto.OperatorRevenueDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface RechargeTransactionRepository extends JpaRepository<RechargeTransaction, Long> {
+@Repository
+public interface RechargeTransactionRepository extends JpaRepository<RechargeTransaction, Long>, JpaSpecificationExecutor<RechargeTransaction> {
     @Query("SELECT SUM(r.montant) FROM RechargeTransaction r WHERE r.statut = :statut")
     BigDecimal sumAmountByStatus(@Param("statut") String statut);
 
@@ -31,4 +36,12 @@ public interface RechargeTransactionRepository extends JpaRepository<RechargeTra
     Long countByStatut(String statut);
     
     Page<RechargeTransaction> findByStatut(String statut, Pageable pageable);
+
+    List<RechargeTransaction> findByUser(User user);
+
+    List<RechargeTransaction> findByUserOrderByDateDemandeDesc(User user);
+
+    List<RechargeTransaction> findByAgent(User agent);
+
+    List<RechargeTransaction> findByTypeTraitement(RechargeTransaction.TypeTraitement typeTraitement);
 } 

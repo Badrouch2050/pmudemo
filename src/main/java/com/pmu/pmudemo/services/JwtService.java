@@ -1,5 +1,6 @@
 package com.pmu.pmudemo.services;
 
+import com.pmu.pmudemo.domains.Role;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -29,6 +30,13 @@ public class JwtService {
     public String extractEmail(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Role extractRole(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody();
+        String roleStr = claims.get("role", String.class);
+        return Role.fromString(roleStr);
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {

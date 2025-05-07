@@ -1,13 +1,12 @@
 package com.pmu.pmudemo.Controller.backoffice;
 
 import com.pmu.pmudemo.domains.User;
+import com.pmu.pmudemo.domains.Role;
 import com.pmu.pmudemo.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/backoffice/users")
@@ -31,19 +30,7 @@ public class UserAdminController {
 
     @PostMapping("/{id}/role")
     public ResponseEntity<Void> changeUserRole(@PathVariable Long id, @RequestParam String role) {
-        userService.changeUserRole(id, role);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{id}/add-role")
-    public ResponseEntity<Void> addRole(@PathVariable Long id, @RequestParam String role) {
-        userService.addRole(id, role);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{id}/remove-role")
-    public ResponseEntity<Void> removeRole(@PathVariable Long id, @RequestParam String role) {
-        userService.removeRole(id, role);
+        userService.changeUserRole(id, Role.fromString(role));
         return ResponseEntity.ok().build();
     }
 } 

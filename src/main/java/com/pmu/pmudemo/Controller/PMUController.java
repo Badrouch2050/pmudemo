@@ -2,7 +2,6 @@ package com.pmu.pmudemo.Controller;
 
 
 
-import com.pmu.pmudemo.domains.Course;
 import com.pmu.pmudemo.domains.dto.CourseDTO;
 import com.pmu.pmudemo.domains.dto.PartantDTO;
 import com.pmu.pmudemo.domains.mapper.CourseMapper;
@@ -29,6 +28,13 @@ public class PMUController {
         this.partantService = partantService;
         this.courseService = courseService;
     }
+
+
+    @GetMapping("/")
+    public String redirectToSwagger() {
+        return "redirect:/swagger-ui/index.html";
+    }
+
 
     @PostMapping("/addcourse")
     public void addCourse(@RequestBody CourseDTO course, HttpServletResponse response) {

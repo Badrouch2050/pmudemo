@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.pmu.pmudemo.services.CommissionConfigService;
 import com.pmu.pmudemo.domains.CommissionConfig;
 import com.pmu.pmudemo.domains.TauxDeChange ;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +24,8 @@ public class RechargeService {
     private final TransactionAdminService transactionAdminService;
     private final TauxDeChangeService tauxDeChangeService;
     private final CommissionConfigService commissionConfigService;
+    private final ReferralService referralService;
+    private final DashboardService dashboardService;
     @Value("${conversion.margin.percent:0}")
     private double marginPercent;
     @Value("${commission.type:POURCENTAGE}")
@@ -30,13 +33,24 @@ public class RechargeService {
     @Value("${commission.value:0}")
     private static final Logger logger = LoggerFactory.getLogger(RechargeService.class);
 
-    public RechargeService(RechargeTransactionRepository rechargeRepo, UserRepository userRepo, NotificationService notificationService, TransactionAdminService transactionAdminService, TauxDeChangeService tauxDeChangeService, CommissionConfigService commissionConfigService) {
+    public RechargeService(
+        RechargeTransactionRepository rechargeRepo,
+        UserRepository userRepo,
+        NotificationService notificationService,
+        TransactionAdminService transactionAdminService,
+        TauxDeChangeService tauxDeChangeService,
+        CommissionConfigService commissionConfigService,
+        ReferralService referralService,
+        DashboardService dashboardService
+    ) {
         this.rechargeRepo = rechargeRepo;
         this.userRepo = userRepo;
         this.notificationService = notificationService;
         this.transactionAdminService = transactionAdminService;
         this.tauxDeChangeService = tauxDeChangeService;
         this.commissionConfigService = commissionConfigService;
+        this.referralService = referralService;
+        this.dashboardService = dashboardService;
     }
 
     public RechargeTransaction createRecharge(Long userId, String operateur, String numeroCible, Double montantCarte, String deviseCarte, String devisePaiement, String pays) {
@@ -97,6 +111,26 @@ public class RechargeService {
         }
         return saved;
     }
+
+    @Transactional
+    public RechargeTransaction processRecharge(RechargeTransaction transaction) {
+        // Sauvegarde de la transaction
+        RechargeTransaction savedTransaction = rechargeRepo.save(transaction);
+        
+        // Application du système de parrainage
+        referralService.applyReferralBonus(savedTransaction);
+        
+        // Mise à jour du tableau de bord
+        dashboardService.updateDashboardStats(transaction.getUser());
+        dashboardService.updateFrequentContacts(
+            transaction.getUser(),
+            transaction.getNumeroCible(),
+            transaction.getUser().getNom()
+        );
+        
+        return savedTransaction;
+    }
+
     public UserRepository getUserRepo() { return this.userRepo; }
 
     public List<RechargeTransaction> getRechargesByUser(Long userId) {

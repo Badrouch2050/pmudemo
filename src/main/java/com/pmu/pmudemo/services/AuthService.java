@@ -1,6 +1,7 @@
 package com.pmu.pmudemo.services;
 
 import com.pmu.pmudemo.domains.User;
+import com.pmu.pmudemo.domains.Role;
 import com.pmu.pmudemo.domains.dto.RegisterRequest;
 import com.pmu.pmudemo.domains.dto.LoginRequest;
 import com.pmu.pmudemo.domains.dto.AuthResponse;
@@ -12,8 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Service
 public class AuthService {
@@ -38,17 +37,11 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setMotDePasse(passwordEncoder.encode(request.getMotDePasse()));
         user.setMethodeAuthentification("EMAIL");
-        Set<String> roles = new HashSet<>();
-        roles.add("USER");
-        user.setRoles(roles);
+        user.setRole(Role.USER);
         user.setDateInscription(LocalDateTime.now());
         user.setStatut("ACTIF");
         userRepository.save(user);
-        String token = jwtService.generateToken(user.getEmail(), String.join(",", user.getRoles()));
-        AuthResponse response = new AuthResponse();
-        response.setToken(token);
-        response.setEmail(user.getEmail());
-        return response;
+        return createAuthResponse(user);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -57,11 +50,7 @@ public class AuthService {
         );
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        String token = jwtService.generateToken(user.getEmail(), String.join(",", user.getRoles()));
-        AuthResponse response = new AuthResponse();
-        response.setToken(token);
-        response.setEmail(user.getEmail());
-        return response;
+        return createAuthResponse(user);
     }
 
     public AuthResponse loginOrRegisterGoogleUser(String email, String nom) {
@@ -71,17 +60,34 @@ public class AuthService {
             user.setNom(nom);
             user.setEmail(email);
             user.setMethodeAuthentification("GOOGLE");
-            Set<String> roles = new HashSet<>();
-            roles.add("USER");
-            user.setRoles(roles);
+            user.setRole(Role.USER);
             user.setDateInscription(LocalDateTime.now());
             user.setStatut("ACTIF");
             userRepository.save(user);
         }
-        String token = jwtService.generateToken(user.getEmail(), String.join(",", user.getRoles()));
+        return createAuthResponse(user);
+    }
+
+    public void changePassword(String email, String ancienMotDePasse, String nouveauMotDePasse) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+
+        if (!passwordEncoder.matches(ancienMotDePasse, user.getMotDePasse())) {
+            throw new IllegalArgumentException("Ancien mot de passe incorrect");
+        }
+
+        user.setMotDePasse(passwordEncoder.encode(nouveauMotDePasse));
+        userRepository.save(user);
+    }
+
+    private AuthResponse createAuthResponse(User user) {
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().getValue());
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setNom(user.getNom());
+        response.setStatut(user.getStatut());
         return response;
     }
 } 
