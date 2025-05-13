@@ -27,6 +27,8 @@ public class TransactionDetailsDTO {
     private Double commissionBase;
     private String clientNom;
     private String clientEmail;
+    private String typeRecharge;
+    private String codeRecharge;
 
     public static TransactionDetailsDTO fromEntity(RechargeTransaction transaction) {
         TransactionDetailsDTO dto = new TransactionDetailsDTO();
@@ -57,6 +59,11 @@ public class TransactionDetailsDTO {
         if (transaction.getUser() != null) {
             dto.setClientNom(transaction.getUser().getNom());
             dto.setClientEmail(transaction.getUser().getEmail());
+        }
+        
+        dto.setTypeRecharge(transaction.getTypeRecharge().name());
+        if (transaction.getCodeRecharge() != null) {
+            dto.setCodeRecharge(transaction.getCodeRecharge().getCode());
         }
         
         return dto;

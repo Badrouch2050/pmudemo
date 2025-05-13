@@ -13,6 +13,7 @@ public class TauxDeChange {
     private String deviseCible;
     private double taux;
     private LocalDateTime dateObtention;
+    private boolean actif = true;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -24,4 +25,6 @@ public class TauxDeChange {
     public void setTaux(double taux) { this.taux = taux; }
     public LocalDateTime getDateObtention() { return dateObtention; }
     public void setDateObtention(LocalDateTime dateObtention) { this.dateObtention = dateObtention; }
+    public boolean isActif() { return actif; }
+    public void setActif(boolean actif) { this.actif = actif; }
 } 

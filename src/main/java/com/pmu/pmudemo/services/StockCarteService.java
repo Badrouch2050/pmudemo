@@ -4,12 +4,15 @@ import com.pmu.pmudemo.domains.StockCarte;
 import com.pmu.pmudemo.domains.RechargeTransaction;
 import com.pmu.pmudemo.repositories.StockCarteRepository;
 import com.pmu.pmudemo.repositories.RechargeTransactionRepository;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.PageImpl;
 
 @Service
 public class StockCarteService {
@@ -40,9 +43,13 @@ public class StockCarteService {
                 .findFirst();
     }
 
-    public List<StockCarte> findByPaysIgnoreCase(String pays) { return stockCarteRepository.findByPaysIgnoreCase(pays); }
-public List<StockCarte> findAll() { return stockCarteRepository.findAll(); }
-public Optional<StockCarte> findById(Long id) { return stockCarteRepository.findById(id); }
+    
+
+    public Page<StockCarte> findAll(Pageable pageable) {
+        return stockCarteRepository.findAll(pageable);
+    }
+
+    public Optional<StockCarte> findById(Long id) { return stockCarteRepository.findById(id); }
 
     public void assignCardToTransaction(Long carteId, Long transactionId) {
         StockCarte carte = stockCarteRepository.findById(carteId).orElseThrow();
@@ -53,5 +60,34 @@ public Optional<StockCarte> findById(Long id) { return stockCarteRepository.find
         transaction.setCodeRecharge(carte);
         transaction.setStatut("TERMINEE");
         rechargeRepo.save(transaction);
+    }
+
+    public Page<StockCarte> findByPaysIgnoreCase(String pays, Pageable pageable) {
+        List<StockCarte> list = stockCarteRepository.findByPaysIgnoreCase(pays, pageable);
+        return new PageImpl<>(list, pageable, list.size());
+    }
+
+    public Page<StockCarte> findByPaysAndStatutAndOperateurIgnoreCase(String pays, String statut, String operateur, Pageable pageable) {
+        return stockCarteRepository.findByPaysAndStatutAndOperateurIgnoreCase(pays, statut, operateur, pageable);
+    }
+
+    public Page<StockCarte> findByPaysAndStatutIgnoreCase(String pays, String statut, Pageable pageable) {
+        return stockCarteRepository.findByPaysAndStatutIgnoreCase(pays, statut, pageable);
+    }
+
+    public Page<StockCarte> findByPaysAndOperateurIgnoreCase(String pays, String operateur, Pageable pageable) {
+        return stockCarteRepository.findByPaysAndOperateurIgnoreCase(pays, operateur, pageable);
+    }
+
+    public Page<StockCarte> findByStatutAndOperateurIgnoreCase(String statut, String operateur, Pageable pageable) {
+        return stockCarteRepository.findByStatutAndOperateurIgnoreCase(statut, operateur, pageable);
+    }
+
+    public Page<StockCarte> findByStatutIgnoreCase(String statut, Pageable pageable) {
+        return stockCarteRepository.findByStatutIgnoreCase(statut, pageable);
+    }
+
+    public Page<StockCarte> findByOperateurIgnoreCase(String operateur, Pageable pageable) {
+        return stockCarteRepository.findByOperateurIgnoreCase(operateur, pageable);
     }
 } 

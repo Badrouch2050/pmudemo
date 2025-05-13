@@ -2,10 +2,10 @@ package com.pmu.pmudemo.Controller.backoffice;
 
 import com.pmu.pmudemo.domains.TauxDeChange;
 import com.pmu.pmudemo.services.TauxDeChangeService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/backoffice/taux-de-change")
@@ -17,20 +17,42 @@ public class TauxDeChangeController {
         this.service = service;
     }
 
-    @GetMapping("/current")
-    public ResponseEntity<TauxDeChange> getCurrent(@RequestParam String source, @RequestParam String cible) {
-        return ResponseEntity.ok(service.getOrFetchRate(source, cible));
+    @GetMapping
+    public List<TauxDeChange> getAllRates() {
+        return service.getAllRates();
     }
 
-    @GetMapping("/history")
-    public ResponseEntity<List<TauxDeChange>> getHistory(@RequestParam String source, @RequestParam String cible) {
-        return ResponseEntity.ok(service.getHistory(source, cible));
+    @GetMapping("/{id}")
+    public TauxDeChange getRate(@PathVariable Long id) {
+        return service.findById(id);
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<TauxDeChange> forceRefresh(@RequestParam String source, @RequestParam String cible) {
-        // Force la récupération d'un nouveau taux
-        TauxDeChange taux = service.getOrFetchRate(source, cible);
-        return ResponseEntity.ok(taux);
+    @PostMapping
+    public TauxDeChange createRate(@RequestBody TauxDeChange taux) {
+        return service.saveRate(taux);
+    }
+
+    @PutMapping("/{id}")
+    public TauxDeChange updateRate(@PathVariable Long id, @RequestBody TauxDeChange taux) {
+        return service.updateRate(id, taux);
+    }
+
+    @PatchMapping("/{id}/toggle")
+    public TauxDeChange toggleRate(@PathVariable Long id) {
+        return service.toggleRate(id);
+    }
+
+    @GetMapping("/{id}/historique")
+    public List<Map<String, Object>> getHistorique(@PathVariable Long id) {
+        return service.getHistorique(id);
+    }
+
+    @GetMapping("/calcul")
+    public Map<String, Object> calculerMontant(
+        @RequestParam double montant,
+        @RequestParam String deviseSource,
+        @RequestParam String deviseCible
+    ) {
+        return service.calculerMontant(montant, deviseSource, deviseCible);
     }
 } 

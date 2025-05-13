@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS commission_config;
 DROP TABLE IF EXISTS taux_de_change;
 DROP TABLE IF EXISTS operator;
 DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS currencies;
+DROP TABLE IF EXISTS main_currencies;
 
 -- Création de la table utilisateur
 CREATE TABLE "user" (
@@ -138,4 +140,40 @@ CREATE TABLE notification (
     statut VARCHAR(50) NOT NULL,
     date_envoi TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES "user"(id)
-); 
+);
+
+-- Table des devises principales
+CREATE TABLE main_currencies (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(3) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    symbol VARCHAR(5) NOT NULL,
+    active BOOLEAN DEFAULT true
+);
+
+-- Table des devises supportées
+CREATE TABLE currencies (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(3) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    symbol VARCHAR(5) NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    region VARCHAR(50) NOT NULL,
+    priority INT NOT NULL
+);
+
+-- Insertion des devises principales
+INSERT INTO main_currencies (code, name, symbol, active) VALUES
+('TND', 'Tunisian Dinar', 'د.ت', true);
+
+-- Insertion des devises supportées
+INSERT INTO currencies (code, name, symbol, is_active, region, priority) VALUES
+('EUR', 'Euro', '€', true, 'Europe', 1),
+('USD', 'US Dollar', '$', true, 'USA', 2),
+('GBP', 'British Pound', '£', true, 'Europe', 3),
+('AED', 'UAE Dirham', 'د.إ', true, 'Gulf', 4),
+('SAR', 'Saudi Riyal', '﷼', true, 'Gulf', 5),
+('QAR', 'Qatari Riyal', '﷼', true, 'Gulf', 6),
+('KWD', 'Kuwaiti Dinar', 'د.ك', true, 'Gulf', 7),
+('BHD', 'Bahraini Dinar', '.د.ب', true, 'Gulf', 8),
+('OMR', 'Omani Rial', '﷼', true, 'Gulf', 9); 

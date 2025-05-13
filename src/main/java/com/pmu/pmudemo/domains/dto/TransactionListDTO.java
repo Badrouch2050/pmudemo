@@ -19,6 +19,7 @@ public class TransactionListDTO {
     private String pays;
     private Double commission;
     private String clientNom; // Nom de l'utilisateur qui a effectué la transaction
+    private String typeRecharge; // Nouveau champ pour indiquer si c'est une recharge par carte ou directe
 
     public static TransactionListDTO fromEntity(RechargeTransaction transaction) {
         TransactionListDTO dto = new TransactionListDTO();
@@ -39,6 +40,7 @@ public class TransactionListDTO {
         if (transaction.getUser() != null) {
             dto.setClientNom(transaction.getUser().getNom());
         }
+        dto.setTypeRecharge(transaction.getTypeRecharge().name());
         return dto;
     }
 } 

@@ -42,12 +42,75 @@ public class ApplicationStartupListener implements ApplicationListener<ContextRe
     @Autowired
     private RechargeTransactionRepository rechargeTransactionRepository;
 
+    @Autowired
+    private RechargeConfigurationRepository rechargeConfigurationRepository;
+
+    @Autowired
+    private RechargeStockRepository rechargeStockRepository;
+
+    @Autowired
+    private MainCurrencyRepository mainCurrencyRepository;
+
+    @Autowired
+    private CurrencyRepository currencyRepository;
+
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (userRepository.count() == 0) {
             initializeData();
         }
+
+        // Initialisation de la devise principale (TND)
+        if (mainCurrencyRepository.count() == 0) {
+            MainCurrency tnd = new MainCurrency();
+            tnd.setCode("TND");
+            tnd.setName("Tunisian Dinar");
+            tnd.setSymbol("د.ت");
+            tnd.setActive(true);
+            mainCurrencyRepository.save(tnd);
+        }
+
+        // Initialisation des devises supportées
+        if (currencyRepository.count() == 0) {
+            List<Currency> currencies = Arrays.asList(
+                createCurrency("EUR", "Euro", "€", "Europe", 1),
+                createCurrency("USD", "US Dollar", "$", "USA", 2),
+                createCurrency("GBP", "British Pound", "£", "Europe", 3),
+                createCurrency("AED", "UAE Dirham", "د.إ", "Gulf", 4),
+                createCurrency("SAR", "Saudi Riyal", "﷼", "Gulf", 5),
+                createCurrency("QAR", "Qatari Riyal", "﷼", "Gulf", 6),
+                createCurrency("KWD", "Kuwaiti Dinar", "د.ك", "Gulf", 7),
+                createCurrency("BHD", "Bahraini Dinar", ".د.ب", "Gulf", 8),
+                createCurrency("OMR", "Omani Rial", "﷼", "Gulf", 9)
+            );
+            currencyRepository.saveAll(currencies);
+        }
+
+        // Initialisation des taux de change
+        if (tauxDeChangeRepository.count() == 0) {
+            List<TauxDeChange> taux = Arrays.asList(
+                createTauxDeChange("TND", "EUR", 0.30),
+                createTauxDeChange("TND", "USD", 0.32),
+                createTauxDeChange("TND", "GBP", 0.26),
+                createTauxDeChange("TND", "AED", 1.18),
+                createTauxDeChange("TND", "SAR", 1.20),
+                createTauxDeChange("TND", "QAR", 1.17),
+                createTauxDeChange("TND", "KWD", 0.10),
+                createTauxDeChange("TND", "BHD", 0.12),
+                createTauxDeChange("TND", "OMR", 0.12)
+            );
+            tauxDeChangeRepository.saveAll(taux);
+        }
+    }
+
+    private MainCurrency createMainCurrency(String code, String name, String symbol) {
+        MainCurrency currency = new MainCurrency();
+        currency.setCode(code);
+        currency.setName(name);
+        currency.setSymbol(symbol);
+        currency.setActive(true);
+        return currency;
     }
 
     private void initializeData() {
@@ -99,15 +162,6 @@ public class ApplicationStartupListener implements ApplicationListener<ContextRe
         );
         commissionConfigRepository.saveAll(commissions);
 
-        // Initialisation des taux de change
-        List<TauxDeChange> taux = Arrays.asList(
-            createTauxDeChange("EUR", "USD", 1.08),
-            createTauxDeChange("USD", "EUR", 0.92),
-            createTauxDeChange("EUR", "GBP", 0.86),
-            createTauxDeChange("GBP", "EUR", 1.16)
-        );
-        tauxDeChangeRepository.saveAll(taux);
-
         // Initialisation des feature flags
         List<FeatureFlag> flags = Arrays.asList(
             createFeatureFlag("PAIEMENT_STRIPE", true, "Activer le paiement via Stripe"),
@@ -117,36 +171,51 @@ public class ApplicationStartupListener implements ApplicationListener<ContextRe
         );
         featureFlagRepository.saveAll(flags);
 
-        // Initialisation des transactions de recharge
-     // ... création admin et agent comme avant ...
+        // Initialisation des configurations de recharge
+        List<RechargeConfiguration> configurations = Arrays.asList(
+            createRechargeConfiguration("France", "Orange", new BigDecimal("5.00"), new BigDecimal("100.00")),
+            createRechargeConfiguration("France", "Free", new BigDecimal("5.00"), new BigDecimal("100.00")),
+            createRechargeConfiguration("France", "SFR", new BigDecimal("5.00"), new BigDecimal("100.00")),
+            createRechargeConfiguration("France", "Bouygues", new BigDecimal("5.00"), new BigDecimal("100.00"))
+        );
+        rechargeConfigurationRepository.saveAll(configurations);
 
-    // Création de 10 utilisateurs USER
-    List<User> users = new ArrayList();
-    for (int i = 1; i <= 10; i++) {
-        User user = new User();
-        user.setNom("User " + i);
-        user.setEmail("user" + i + "@chargili.com");
-        user.setMotDePasse("$2a$10$X7G3Y5Z9B7D1F3H5J7L9N1P3R5T7V9W1Y3A5C7E9G1I3K5M7O9Q1S3U5W7Y9"); // hash de "password"
-        user.setRole(Role.USER);
-        user.setStatut("ACTIF");
-        user.setMethodeAuthentification("EMAIL");
-        user.setDateInscription(LocalDateTime.now().minusDays(i));
-        users.add(user);
-    }
-    userRepository.saveAll(users);
+        // Initialisation des stocks de recharge
+        List<RechargeStock> stocks = Arrays.asList(
+            createRechargeStock("France", "Orange", new BigDecimal("1000.00")),
+            createRechargeStock("France", "Free", new BigDecimal("1000.00")),
+            createRechargeStock("France", "SFR", new BigDecimal("1000.00")),
+            createRechargeStock("France", "Bouygues", new BigDecimal("1000.00"))
+        );
+        rechargeStockRepository.saveAll(stocks);
 
-    // Création de 5 transactions par utilisateur
-    List<RechargeTransaction> transactions = new ArrayList();
-    String[] statuts = {"COMPLETEE", "EN_ATTENTE", "ECHOUEE"};
+        // Création de 10 utilisateurs USER
+        List<User> users = new ArrayList();
+        for (int i = 1; i <= 10; i++) {
+            User user = new User();
+            user.setNom("User " + i);
+            user.setEmail("user" + i + "@chargili.com");
+            user.setMotDePasse("$2a$10$X7G3Y5Z9B7D1F3H5J7L9N1P3R5T7V9W1Y3A5C7E9G1I3K5M7O9Q1S3U5W7Y9"); // hash de "password"
+            user.setRole(Role.USER);
+            user.setStatut("ACTIF");
+            user.setMethodeAuthentification("EMAIL");
+            user.setDateInscription(LocalDateTime.now().minusDays(i));
+            users.add(user);
+        }
+        userRepository.saveAll(users);
 
-    for (int i = 0; i < users.size(); i++) {
-        User user = users.get(i);
-        for (int j = 0; j < 5; j++) {
-            Operator op = operators.get((i + j) % operators.size());
-            String statut = statuts[(i + j) % statuts.length];
-            double montant = 10.0 * (j + 1);
-            transactions.add(
-                createTransaction(
+        // Création de 5 transactions par utilisateur
+        List<RechargeTransaction> transactions = new ArrayList();
+        String[] statuts = {"COMPLETEE", "EN_ATTENTE", "ECHOUEE"};
+
+        for (int i = 0; i < users.size(); i++) {
+            User user = users.get(i);
+            for (int j = 0; j < 5; j++) {
+                Operator op = operators.get((i + j) % operators.size());
+                String statut = statuts[(i + j) % statuts.length];
+                double montant = 10.0 * (j + 1);
+                    
+                RechargeTransaction transaction = createTransaction(
                     user,
                     op.getNom(),
                     "06" + String.format("%08d", i * 5 + j),
@@ -165,11 +234,17 @@ public class ApplicationStartupListener implements ApplicationListener<ContextRe
                     2.5,
                     RechargeTransaction.TypeTraitement.AUTOMATIQUE,
                     null
-                )
-            );
+                );
+
+                // Définir le type de recharge (alterner entre CARTE et DIRECTE)
+                transaction.setTypeRecharge(j % 2 == 0 ? 
+                    RechargeTransaction.TypeRecharge.CARTE : 
+                    RechargeTransaction.TypeRecharge.DIRECTE);
+
+                transactions.add(transaction);
+            }
         }
-    }
-    rechargeTransactionRepository.saveAll(transactions);
+        rechargeTransactionRepository.saveAll(transactions);
     }
     
     private Operator createOperator(String nom, String pays, String codeDetection, String statut, String logoUrl, boolean actif) {
@@ -249,5 +324,35 @@ public class ApplicationStartupListener implements ApplicationListener<ContextRe
             transaction.setDateTraitement(dateDemande.plusMinutes(30));
         }
         return transaction;
+    }
+
+    private RechargeConfiguration createRechargeConfiguration(String pays, String operateur, 
+            BigDecimal montantMin, BigDecimal montantMax) {
+        RechargeConfiguration config = new RechargeConfiguration();
+        config.setPays(pays);
+        config.setOperateur(operateur);
+        config.setMontantMin(montantMin);
+        config.setMontantMax(montantMax);
+        return config;
+    }
+
+    private RechargeStock createRechargeStock(String pays, String operateur, BigDecimal montantTotal) {
+        RechargeStock stock = new RechargeStock();
+        stock.setPays(pays);
+        stock.setOperateur(operateur);
+        stock.setMontantTotal(montantTotal);
+        stock.setMontantDisponible(montantTotal);
+        return stock;
+    }
+
+    private Currency createCurrency(String code, String name, String symbol, String region, int priority) {
+        Currency currency = new Currency();
+        currency.setCode(code);
+        currency.setName(name);
+        currency.setSymbol(symbol);
+        currency.setRegion(region);
+        currency.setPriority(priority);
+        currency.setActive(true);
+        return currency;
     }
 } 

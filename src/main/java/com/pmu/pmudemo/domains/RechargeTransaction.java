@@ -1,7 +1,10 @@
 package com.pmu.pmudemo.domains;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+
+import lombok.Data;
 
 @Entity
 @Table(name = "recharge_transaction")
@@ -38,9 +41,18 @@ public class RechargeTransaction {
     @Column(name = "type_traitement", nullable = false)
     private TypeTraitement typeTraitement;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_recharge", nullable = false)
+    private TypeRecharge typeRecharge = TypeRecharge.CARTE;
+
     public enum TypeTraitement {
         AUTOMATIQUE,  // Traité par le système
         MANUELLE      // Traité par un agent
+    }
+
+    public enum TypeRecharge {
+        CARTE,    // Recharge via une carte
+        DIRECTE   // Recharge directe
     }
 
     public Long getId() { return id; }
@@ -88,5 +100,11 @@ public class RechargeTransaction {
     }
     public void setTypeTraitement(TypeTraitement typeTraitement) {
         this.typeTraitement = typeTraitement;
+    }
+    public TypeRecharge getTypeRecharge() {
+        return typeRecharge;
+    }
+    public void setTypeRecharge(TypeRecharge typeRecharge) {
+        this.typeRecharge = typeRecharge;
     }
 } 

@@ -9,8 +9,11 @@ import java.util.Map;
 @Service
 public class ExchangeRateApiService {
     
- //   @Value("${exchangerate.api.url}")
-    private String apiUrl = "https://api.exchangerate-api.com/v4/latest/";
+    @Value("${exchangerate.api.url}")
+    private String apiUrl;
+    
+    @Value("${exchangerate.api.key}")
+    private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -18,6 +21,7 @@ public class ExchangeRateApiService {
         String url = UriComponentsBuilder.fromHttpUrl(apiUrl)
                 .queryParam("base", base)
                 .queryParam("symbols", target)
+                .queryParam("access_key", apiKey)
                 .toUriString();
         Map response = restTemplate.getForObject(url, Map.class);
         if (response != null && response.containsKey("rates")) {
